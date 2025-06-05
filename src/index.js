@@ -20,8 +20,9 @@ app.use(express.static(path.resolve(__dirname, '..')));
 app.get('/api/stock/:symbol', async (req, res) => {
   try {
     const symbol = req.params.symbol.toUpperCase();
+    const timeframe = req.query.timeframe || 'all';
     await fetchAndCache(symbol);
-    let data = getHistoricalData(symbol);
+    let data = getHistoricalData(symbol, timeframe);
     data = addIndicators(data);
     data = applyStrategy(data);
     
@@ -59,8 +60,9 @@ app.get('/api/stock/:symbol', async (req, res) => {
 app.get('/api/backtest/:symbol', async (req, res) => {
   try {
     const symbol = req.params.symbol.toUpperCase();
+    const timeframe = req.query.timeframe || 'all';
     await fetchAndCache(symbol);
-    let data = getHistoricalData(symbol);
+    let data = getHistoricalData(symbol, timeframe);
     data = addIndicators(data);
     data = applyStrategy(data);
     const bt = backtest(data);
@@ -74,8 +76,9 @@ app.get('/api/backtest/:symbol', async (req, res) => {
 app.get('/api/summary/:symbol', async (req, res) => {
   try {
     const symbol = req.params.symbol.toUpperCase();
+    const timeframe = req.query.timeframe || 'all';
     await fetchAndCache(symbol);
-    let data = getHistoricalData(symbol);
+    let data = getHistoricalData(symbol, timeframe);
     data = addIndicators(data);
     const summary = await getSummary(symbol, data);
     res.send(summary);
@@ -86,6 +89,7 @@ app.get('/api/summary/:symbol', async (req, res) => {
 });
 
 initLogger();
-updateAll().catch(err => error(err));
+// Skip updateAll on startup for now
+// updateAll().catch(err => error(err));
 
 app.listen(PORT, () => info(`Server running on port ${PORT}`));
