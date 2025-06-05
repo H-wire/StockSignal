@@ -28,6 +28,9 @@ export function logLLMInteraction(prompt, response) {
 }
 
 export function init() {
+  // ensure log files exist so users know where to look
+  fs.openSync(logFile, 'a');
+  fs.openSync(llmLogFile, 'a');
   process.on('unhandledRejection', err => error(err));
   process.on('uncaughtException', err => {
     error(err);
