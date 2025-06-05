@@ -4,6 +4,7 @@ import path from 'path';
 const logDir = path.resolve('logs');
 fs.mkdirSync(logDir, { recursive: true });
 const logFile = path.join(logDir, 'app.log');
+const llmLogFile = path.join(logDir, 'llm.log');
 
 function write(type, msg) {
   const line = `[${new Date().toISOString()}] [${type}] ${msg}\n`;
@@ -21,7 +22,15 @@ export function error(err) {
   write('ERROR', msg);
 }
 
+export function logLLMInteraction(prompt, response) {
+  const entry = `[${new Date().toISOString()}]\nPROMPT: ${prompt}\nRESPONSE: ${response}\n\n`;
+  fs.appendFileSync(llmLogFile, entry);
+}
+
 export function init() {
+  // ensure log files exist so users know where to look
+  fs.openSync(logFile, 'a');
+  fs.openSync(llmLogFile, 'a');
   process.on('unhandledRejection', err => error(err));
   process.on('uncaughtException', err => {
     error(err);
