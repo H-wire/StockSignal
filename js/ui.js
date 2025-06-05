@@ -37,7 +37,8 @@ async function loadData() {
     }
 
     const summary = await fetchSummary(symbol);
-    document.getElementById('summary').innerText = summary;
+    const summaryEl = document.getElementById('summary');
+    summaryEl.innerHTML = `<div class="summary-text">${summary.replace(/\n/g, '<br>')}</div>`;
   } catch (err) {
     console.error(err);
     alert(err.message);
@@ -47,10 +48,34 @@ async function loadData() {
 function showBacktestStats(bt) {
   const el = document.getElementById('backtestStats');
   if (!bt) { el.innerHTML = ''; return; }
+  
+  const returnClass = bt.totalReturn > 0 ? 'text-success' : 'text-danger';
+  const winRateClass = bt.winRate > 50 ? 'text-success' : 'text-warning';
+  
   el.innerHTML = `
-    <div class="col-6 col-md-3">Return: ${bt.totalReturn}%</div>
-    <div class="col-6 col-md-3">Win Rate: ${bt.winRate}%</div>
-    <div class="col-6 col-md-3">Drawdown: ${bt.maxDrawdown}%</div>
-    <div class="col-6 col-md-3">Trades: ${bt.trades}</div>
+    <div class="col-6 col-lg-3">
+      <div class="metric-card">
+        <div class="metric-value ${returnClass}">${bt.totalReturn}%</div>
+        <div class="metric-label">Total Return</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="metric-card">
+        <div class="metric-value ${winRateClass}">${bt.winRate}%</div>
+        <div class="metric-label">Win Rate</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="metric-card">
+        <div class="metric-value text-danger">${bt.maxDrawdown}%</div>
+        <div class="metric-label">Max Drawdown</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="metric-card">
+        <div class="metric-value text-info">${bt.trades}</div>
+        <div class="metric-label">Total Trades</div>
+      </div>
+    </div>
   `;
 }
