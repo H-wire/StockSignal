@@ -23,7 +23,33 @@ app.get('/api/stock/:symbol', async (req, res) => {
     await fetchAndCache(symbol);
     let data = getHistoricalData(symbol);
     data = addIndicators(data);
-    res.json(data);
+    data = applyStrategy(data);
+    
+    // Transform data for frontend
+    const chartData = {
+      dates: data.map(d => d.date),
+      close: data.map(d => d.close),
+      volume: data.map(d => d.volume),
+      sma50: data.map(d => d.sma50),
+      sma200: data.map(d => d.sma200),
+      rsi: data.map(d => d.rsi14),
+      macd: data.map(d => d.macd),
+      macdSignal: data.map(d => d.macdSignal),
+      macdHist: data.map(d => d.macdHist),
+      bbUpper: data.map(d => d.bbUpper),
+      bbLower: data.map(d => d.bbLower),
+      bbMiddle: data.map(d => d.bbMiddle),
+      signals: []
+    };
+    
+    // Add buy signals
+    data.forEach((d, i) => {
+      if (d.buySignal) {
+        chartData.signals.push({ index: i, type: 'buy' });
+      }
+    });
+    
+    res.json(chartData);
   } catch (err) {
     error(err);
     res.status(500).json({ error: 'Failed to fetch stock data' });
