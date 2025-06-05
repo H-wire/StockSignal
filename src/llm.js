@@ -11,9 +11,10 @@ if (fs.existsSync(cachePath)) {
   cache = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
 }
 
-export async function getSummary(symbol, indicators) {
+export async function getSummary(symbol, indicators, opts = {}) {
   const today = new Date().toISOString().substring(0, 10);
-  if (cache[symbol] && cache[symbol].date === today) {
+  const force = opts.force === true;
+  if (!force && cache[symbol] && cache[symbol].date === today) {
     return cache[symbol].summary;
   }
 
@@ -118,4 +119,11 @@ function generateFallbackAnalysis(symbol, data) {
   return `${symbol} Analysis: Price $${price}, RSI ${rsi} (${rsiSignal}), Trend: ${trend}.${buySignal} LLM analysis temporarily unavailable.`;
 }
 
-export default { getSummary };
+export function clearSummaryCache(symbol) {
+  if (cache[symbol]) {
+    delete cache[symbol];
+    fs.writeFileSync(cachePath, JSON.stringify(cache, null, 2));
+  }
+}
+
+export default { getSummary, clearSummaryCache };

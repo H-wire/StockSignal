@@ -13,7 +13,9 @@ let toggles = {
 
 export function setupUI() {
   initCharts();
-  document.getElementById('refreshBtn').addEventListener('click', loadData);
+  document.getElementById('refreshBtn').addEventListener('click', () => loadData());
+  const reloadBtn = document.getElementById('llmReloadBtn');
+  if (reloadBtn) reloadBtn.addEventListener('click', () => loadData(true));
   ['sma50','sma200','bb','rsi','macd','volume','backtest'].forEach(id => {
     document.getElementById(id + 'Toggle').addEventListener('change', e => {
       toggles[id] = e.target.checked;
@@ -23,7 +25,7 @@ export function setupUI() {
   loadData();
 }
 
-async function loadData() {
+async function loadData(reloadSummary = false) {
   const symbol = document.getElementById('symbolInput').value.trim().toUpperCase();
   if (!symbol) return;
   try {
@@ -36,7 +38,7 @@ async function loadData() {
       updatePortfolioChart(bt);
     }
 
-    const summary = await fetchSummary(symbol);
+    const summary = await fetchSummary(symbol, reloadSummary);
     const summaryEl = document.getElementById('summary');
     summaryEl.innerHTML = `<div class="summary-text">${summary.replace(/\n/g, '<br>')}</div>`;
   } catch (err) {

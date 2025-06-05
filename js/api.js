@@ -4,8 +4,9 @@ export async function fetchStock(symbol) {
   return res.json();
 }
 
-export async function fetchSummary(symbol) {
-  const res = await fetch(`/api/summary/${symbol}`);
+export async function fetchSummary(symbol, reload = false) {
+  const url = reload ? `/api/summary/${symbol}?reload=true` : `/api/summary/${symbol}`;
+  const res = await fetch(url);
   if (!res.ok) throw new Error('Failed to fetch summary');
   return res.text();
 }
