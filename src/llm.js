@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import fetch from 'node-fetch';
 import CONFIG from './config.js';
+import { logLLMInteraction, error as logError } from './logger.js';
 
 const cachePath = path.resolve('data', 'llm_cache.json');
 fs.mkdirSync(path.dirname(cachePath), { recursive: true });
@@ -15,11 +16,12 @@ export async function getSummary(symbol, indicators) {
   if (cache[symbol] && cache[symbol].date === today) {
     return cache[symbol].summary;
   }
-  
+
+  let prompt = '';
   try {
     const latestData = indicators.slice(-1)[0];
-    const prompt = `Analyze this stock data for ${symbol} and provide a brief technical analysis summary (max 3 sentences):
-    
+    prompt = `Analyze this stock data for ${symbol} and provide a brief technical analysis summary (max 3 sentences):
+
 Price: $${latestData.close}
 RSI: ${latestData.rsi14}
 SMA50: ${latestData.sma50}
@@ -83,14 +85,18 @@ Focus on trend direction, momentum, and key signals.`;
     
     cache[symbol] = { date: today, summary };
     fs.writeFileSync(cachePath, JSON.stringify(cache, null, 2));
+    logLLMInteraction(prompt, summary);
     return summary;
   } catch (error) {
-    console.error('LLM Error:', error);
+    logError(error);
     const latestData = indicators.slice(-1)[0];
     const fallbackSummary = generateFallbackAnalysis(symbol, latestData);
-    
+
     cache[symbol] = { date: today, summary: fallbackSummary };
     fs.writeFileSync(cachePath, JSON.stringify(cache, null, 2));
+    if (prompt) {
+      logLLMInteraction(prompt, fallbackSummary);
+    }
     return fallbackSummary;
   }
 }

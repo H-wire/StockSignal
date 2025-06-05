@@ -4,6 +4,7 @@ import path from 'path';
 const logDir = path.resolve('logs');
 fs.mkdirSync(logDir, { recursive: true });
 const logFile = path.join(logDir, 'app.log');
+const llmLogFile = path.join(logDir, 'llm.log');
 
 function write(type, msg) {
   const line = `[${new Date().toISOString()}] [${type}] ${msg}\n`;
@@ -19,6 +20,11 @@ export function error(err) {
   const msg = err && err.stack ? err.stack : String(err);
   console.error(msg);
   write('ERROR', msg);
+}
+
+export function logLLMInteraction(prompt, response) {
+  const entry = `[${new Date().toISOString()}]\nPROMPT: ${prompt}\nRESPONSE: ${response}\n\n`;
+  fs.appendFileSync(llmLogFile, entry);
 }
 
 export function init() {
