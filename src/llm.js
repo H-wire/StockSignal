@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import fetch from 'node-fetch';
 import CONFIG from './config.js';
 import { logLLMInteraction, error as logError } from './logger.js';
 
