@@ -1,5 +1,10 @@
 let priceChart, rsiChart, macdChart, portfolioChart;
 
+// Register zoom plugin if available
+if (typeof Chart !== 'undefined' && typeof ChartZoom !== 'undefined') {
+  Chart.register(ChartZoom);
+}
+
 export function initCharts() {
   const priceCtx = document.getElementById('priceChart').getContext('2d');
   const rsiCtx = document.getElementById('rsiChart').getContext('2d');
@@ -25,10 +30,19 @@ export function initCharts() {
         }
       },
       plugins: {
-        legend: { 
+        legend: {
           display: true,
           position: 'top',
           labels: { usePointStyle: true }
+        },
+        zoom: {
+          pan: { enabled: false },
+          zoom: {
+            wheel: { enabled: false },
+            pinch: { enabled: false },
+            drag: { enabled: false },
+            mode: 'xy'
+          }
         }
       }
     }
@@ -40,20 +54,59 @@ export function initCharts() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      scales: { y: { min: 0, max: 100 } }
+      scales: { y: { min: 0, max: 100 } },
+      plugins: {
+        zoom: {
+          pan: { enabled: false },
+          zoom: {
+            wheel: { enabled: false },
+            pinch: { enabled: false },
+            drag: { enabled: false },
+            mode: 'xy'
+          }
+        }
+      }
     }
   });
 
   macdChart = new Chart(macdCtx, {
     type: 'bar',
     data: { labels: [], datasets: [] },
-    options: { responsive: true, maintainAspectRatio: false }
+    options: { 
+      responsive: true, 
+      maintainAspectRatio: false,
+      plugins: {
+        zoom: {
+          pan: { enabled: false },
+          zoom: {
+            wheel: { enabled: false },
+            pinch: { enabled: false },
+            drag: { enabled: false },
+            mode: 'xy'
+          }
+        }
+      }
+    }
   });
 
   portfolioChart = new Chart(portfolioCtx, {
     type: 'line',
     data: { labels: [], datasets: [] },
-    options: { responsive: true, maintainAspectRatio: false }
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        zoom: {
+          pan: { enabled: false },
+          zoom: {
+            wheel: { enabled: false },
+            pinch: { enabled: false },
+            drag: { enabled: false },
+            mode: 'xy'
+          }
+        }
+      }
+    }
   });
 }
 
@@ -196,4 +249,25 @@ export function updatePortfolioChart(backtest) {
     borderWidth: 2,
   }];
   portfolioChart.update();
+}
+
+// Manual zoom controls
+const ZOOM_FACTOR = 1.2;
+
+export function zoomX(direction) {
+  if (!priceChart) return;
+  const factor = direction > 0 ? ZOOM_FACTOR : 1 / ZOOM_FACTOR;
+  priceChart.zoom({x: factor});
+}
+
+export function zoomY(direction) {
+  if (!priceChart) return;
+  const factor = direction > 0 ? ZOOM_FACTOR : 1 / ZOOM_FACTOR;
+  priceChart.zoom({y: factor});
+}
+
+export function resetZoom() {
+  if (priceChart && typeof priceChart.resetZoom === 'function') {
+    priceChart.resetZoom();
+  }
 }

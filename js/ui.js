@@ -1,5 +1,5 @@
 import { fetchStock, fetchSummary, fetchBacktest } from './api.js';
-import { initCharts, updateStockCharts, updatePortfolioChart } from './chart.js';
+import { initCharts, updateStockCharts, updatePortfolioChart, zoomX, zoomY, resetZoom } from './chart.js';
 
 let toggles = {
   sma50: true,
@@ -13,7 +13,19 @@ let toggles = {
 
 export function setupUI() {
   initCharts();
-  document.getElementById('refreshBtn').addEventListener('click', loadData);
+  document.getElementById('refreshBtn').addEventListener('click', () => loadData());
+  const reloadBtn = document.getElementById('llmReloadBtn');
+  if (reloadBtn) reloadBtn.addEventListener('click', () => loadData(true));
+  const zoomInXBtn = document.getElementById('zoomInX');
+  const zoomOutXBtn = document.getElementById('zoomOutX');
+  const zoomInYBtn = document.getElementById('zoomInY');
+  const zoomOutYBtn = document.getElementById('zoomOutY');
+  const resetZoomBtn = document.getElementById('resetZoom');
+  if (zoomInXBtn) zoomInXBtn.addEventListener('click', () => zoomX(1));
+  if (zoomOutXBtn) zoomOutXBtn.addEventListener('click', () => zoomX(-1));
+  if (zoomInYBtn) zoomInYBtn.addEventListener('click', () => zoomY(1));
+  if (zoomOutYBtn) zoomOutYBtn.addEventListener('click', () => zoomY(-1));
+  if (resetZoomBtn) resetZoomBtn.addEventListener('click', resetZoom);
   ['sma50','sma200','bb','rsi','macd','volume','backtest'].forEach(id => {
     document.getElementById(id + 'Toggle').addEventListener('change', e => {
       toggles[id] = e.target.checked;
@@ -23,7 +35,7 @@ export function setupUI() {
   loadData();
 }
 
-async function loadData() {
+async function loadData(reloadSummary = false) {
   const symbol = document.getElementById('symbolInput').value.trim().toUpperCase();
   if (!symbol) return;
   try {
@@ -36,7 +48,7 @@ async function loadData() {
       updatePortfolioChart(bt);
     }
 
-    const summary = await fetchSummary(symbol);
+    const summary = await fetchSummary(symbol, reloadSummary);
     const summaryEl = document.getElementById('summary');
     summaryEl.innerHTML = `<div class="summary-text">${summary.replace(/\n/g, '<br>')}</div>`;
   } catch (err) {

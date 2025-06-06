@@ -15,3 +15,10 @@ port `3000` that serves the dashboard and provides `/api/stock/:symbol`,
 `/api/backtest/:symbol` and `/api/summary/:symbol` endpoints.  Backtests are
 now triggered from the frontend instead of running automatically on startup.
 
+### LLM summaries
+
+Queries sent to the LLM and the resulting summaries are written to
+`logs/llm.log`.  Each entry records the prompt and the response so issues can be
+troubleshooted.  Use the reload icon in the "AI Market Analysis" card to bypass
+the cache and generate a fresh summary.
+
