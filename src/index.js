@@ -88,6 +88,21 @@ app.get('/api/summary/:symbol', async (req, res) => {
   }
 });
 
+app.post('/api/summary/:symbol/reload', async (req, res) => {
+  try {
+    const symbol = req.params.symbol.toUpperCase();
+    const timeframe = req.query.timeframe || 'all';
+    await fetchAndCache(symbol);
+    let data = getHistoricalData(symbol, timeframe);
+    data = addIndicators(data);
+    const summary = await getSummary(symbol, data, true); // Force reload
+    res.send(summary);
+  } catch (err) {
+    error(err);
+    res.status(500).send('Failed to reload summary');
+  }
+});
+
 initLogger();
 // Skip updateAll on startup for now
 // updateAll().catch(err => error(err));
