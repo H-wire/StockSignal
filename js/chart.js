@@ -12,7 +12,14 @@ export function initCharts() {
     options: { 
       responsive: true, 
       maintainAspectRatio: false,
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      },
       scales: {
+        x: {
+          grid: { color: 'rgba(0,0,0,0.1)' }
+        },
         y: {
           position: 'left',
           grid: { color: 'rgba(0,0,0,0.1)' }
@@ -29,6 +36,21 @@ export function initCharts() {
           display: true,
           position: 'top',
           labels: { usePointStyle: true }
+        },
+        zoom: {
+          pan: {
+            enabled: true,
+            mode: 'x'
+          },
+          zoom: {
+            wheel: {
+              enabled: true
+            },
+            pinch: {
+              enabled: true
+            },
+            mode: 'x'
+          }
         }
       }
     }
@@ -40,20 +62,129 @@ export function initCharts() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      scales: { y: { min: 0, max: 100 } }
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      },
+      scales: { 
+        x: {
+          grid: { color: 'rgba(0,0,0,0.1)' }
+        },
+        y: { 
+          min: 0, 
+          max: 100,
+          grid: { color: 'rgba(0,0,0,0.1)' }
+        }
+      },
+      plugins: {
+        legend: { 
+          display: true,
+          position: 'top',
+          labels: { usePointStyle: true }
+        },
+        zoom: {
+          pan: {
+            enabled: true,
+            mode: 'x'
+          },
+          zoom: {
+            wheel: {
+              enabled: true
+            },
+            pinch: {
+              enabled: true
+            },
+            mode: 'x'
+          }
+        }
+      }
     }
   });
 
   macdChart = new Chart(macdCtx, {
     type: 'bar',
     data: { labels: [], datasets: [] },
-    options: { responsive: true, maintainAspectRatio: false }
+    options: { 
+      responsive: true, 
+      maintainAspectRatio: false,
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(0,0,0,0.1)' }
+        },
+        y: {
+          grid: { color: 'rgba(0,0,0,0.1)' }
+        }
+      },
+      plugins: {
+        legend: { 
+          display: true,
+          position: 'top',
+          labels: { usePointStyle: true }
+        },
+        zoom: {
+          pan: {
+            enabled: true,
+            mode: 'x'
+          },
+          zoom: {
+            wheel: {
+              enabled: true
+            },
+            pinch: {
+              enabled: true
+            },
+            mode: 'x'
+          }
+        }
+      }
+    }
   });
 
   portfolioChart = new Chart(portfolioCtx, {
     type: 'line',
     data: { labels: [], datasets: [] },
-    options: { responsive: true, maintainAspectRatio: false }
+    options: { 
+      responsive: true, 
+      maintainAspectRatio: false,
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(0,0,0,0.1)' }
+        },
+        y: {
+          grid: { color: 'rgba(0,0,0,0.1)' }
+        }
+      },
+      plugins: {
+        legend: { 
+          display: true,
+          position: 'top',
+          labels: { usePointStyle: true }
+        },
+        zoom: {
+          pan: {
+            enabled: true,
+            mode: 'x'
+          },
+          zoom: {
+            wheel: {
+              enabled: true
+            },
+            pinch: {
+              enabled: true
+            },
+            mode: 'x'
+          }
+        }
+      }
+    }
   });
 }
 
