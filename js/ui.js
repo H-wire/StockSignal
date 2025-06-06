@@ -1,5 +1,7 @@
-import { fetchStock, fetchSummary, fetchBacktest, reloadSummary } from './api.js';
-import { initCharts, updateStockCharts, updatePortfolioChart } from './chart.js';
+
+import { fetchStock, fetchSummary, fetchBacktest } from './api.js';
+import { initCharts, updateStockCharts, updatePortfolioChart, zoomX, zoomY, resetZoom } from './chart.js';
+
 
 let toggles = {
   sma50: true,
@@ -14,26 +16,19 @@ let toggles = {
 export function setupUI() {
   initCharts();
 
-  document.getElementById('refreshBtn').addEventListener('click', loadData);
-  document.getElementById('timeframeSelect').addEventListener('change', loadData);
-  document.getElementById('reloadLlmBtn').addEventListener('click', reloadLlmSummary);
-  
-  // Chart zoom controls
-  document.getElementById('zoomInBtn').addEventListener('click', () => {
-    const chart = Chart.getChart('priceChart');
-    chart.zoom(1.1);
-  });
-  
-  document.getElementById('zoomOutBtn').addEventListener('click', () => {
-    const chart = Chart.getChart('priceChart');
-    chart.zoom(0.9);
-  });
-  
-  document.getElementById('resetZoomBtn').addEventListener('click', () => {
-    const chart = Chart.getChart('priceChart');
-    chart.resetZoom();
-  });
-  
+  document.getElementById('refreshBtn').addEventListener('click', () => loadData());
+  const reloadBtn = document.getElementById('llmReloadBtn');
+  if (reloadBtn) reloadBtn.addEventListener('click', () => loadData(true));
+  const zoomInXBtn = document.getElementById('zoomInX');
+  const zoomOutXBtn = document.getElementById('zoomOutX');
+  const zoomInYBtn = document.getElementById('zoomInY');
+  const zoomOutYBtn = document.getElementById('zoomOutY');
+  const resetZoomBtn = document.getElementById('resetZoom');
+  if (zoomInXBtn) zoomInXBtn.addEventListener('click', () => zoomX(1));
+  if (zoomOutXBtn) zoomOutXBtn.addEventListener('click', () => zoomX(-1));
+  if (zoomInYBtn) zoomInYBtn.addEventListener('click', () => zoomY(1));
+  if (zoomOutYBtn) zoomOutYBtn.addEventListener('click', () => zoomY(-1));
+  if (resetZoomBtn) resetZoomBtn.addEventListener('click', resetZoom);
 
   ['sma50','sma200','bb','rsi','macd','volume','backtest'].forEach(id => {
     document.getElementById(id + 'Toggle').addEventListener('change', e => {
@@ -64,29 +59,8 @@ async function loadData(reloadSummary = false) {
     }
 
 
-    const summary = await fetchSummary(symbol, timeframe);
-    summaryEl.innerHTML = `<div class="summary-text">${summary.replace(/\n/g, '<br>')}</div>`;
-  } catch (err) {
-    console.error(err);
-    summaryEl.innerHTML = `<div class="text-danger"><i class="bi bi-exclamation-triangle"></i> Error: ${err.message}</div>`;
-  }
-}
-
-async function reloadLlmSummary() {
-  const symbol = document.getElementById('symbolInput').value.trim().toUpperCase();
-  const timeframe = document.getElementById('timeframeSelect').value;
-  if (!symbol) return;
-  
-  const summaryEl = document.getElementById('summary');
-  const reloadBtn = document.getElementById('reloadLlmBtn');
-  
-  // Show loading state
-  summaryEl.innerHTML = '<div class="text-center"><i class="bi bi-hourglass-split"></i> Reloading AI analysis...</div>';
-  reloadBtn.disabled = true;
-  reloadBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Loading...';
-  
-  try {
-    const summary = await reloadSummary(symbol, timeframe);
+    const summary = await fetchSummary(symbol, reloadSummary);
+    const summaryEl = document.getElementById('summary');
 
     summaryEl.innerHTML = `<div class="summary-text">${summary.replace(/\n/g, '<br>')}</div>`;
   } catch (err) {

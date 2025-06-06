@@ -11,9 +11,10 @@ if (fs.existsSync(cachePath)) {
 }
 
 
-export async function getSummary(symbol, indicators, forceReload = false) {
+export async function getSummary(symbol, indicators, opts = {}) {
   const today = new Date().toISOString().substring(0, 10);
-  if (!forceReload && cache[symbol] && cache[symbol].date === today) {
+  const force = opts.force === true;
+  if (!force && cache[symbol] && cache[symbol].date === today) {
 
     return cache[symbol].summary;
   }
