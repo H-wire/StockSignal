@@ -17,7 +17,14 @@ export function initCharts() {
     options: { 
       responsive: true, 
       maintainAspectRatio: false,
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      },
       scales: {
+        x: {
+          grid: { color: 'rgba(0,0,0,0.1)' }
+        },
         y: {
           position: 'left',
           grid: { color: 'rgba(0,0,0,0.1)' }
@@ -36,12 +43,14 @@ export function initCharts() {
           labels: { usePointStyle: true }
         },
         zoom: {
+
           pan: { enabled: false },
           zoom: {
             wheel: { enabled: false },
             pinch: { enabled: false },
             drag: { enabled: false },
             mode: 'xy'
+
           }
         }
       }
@@ -54,6 +63,7 @@ export function initCharts() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      
       scales: { y: { min: 0, max: 100 } },
       plugins: {
         zoom: {
@@ -63,6 +73,7 @@ export function initCharts() {
             pinch: { enabled: false },
             drag: { enabled: false },
             mode: 'xy'
+
           }
         }
       }
@@ -75,6 +86,7 @@ export function initCharts() {
     options: { 
       responsive: true, 
       maintainAspectRatio: false,
+
       plugins: {
         zoom: {
           pan: { enabled: false },
@@ -83,6 +95,7 @@ export function initCharts() {
             pinch: { enabled: false },
             drag: { enabled: false },
             mode: 'xy'
+
           }
         }
       }
@@ -92,6 +105,7 @@ export function initCharts() {
   portfolioChart = new Chart(portfolioCtx, {
     type: 'line',
     data: { labels: [], datasets: [] },
+
     options: {
       responsive: true,
       maintainAspectRatio: false,
@@ -103,6 +117,7 @@ export function initCharts() {
             pinch: { enabled: false },
             drag: { enabled: false },
             mode: 'xy'
+
           }
         }
       }

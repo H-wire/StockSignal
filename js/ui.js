@@ -1,5 +1,7 @@
+
 import { fetchStock, fetchSummary, fetchBacktest } from './api.js';
 import { initCharts, updateStockCharts, updatePortfolioChart, zoomX, zoomY, resetZoom } from './chart.js';
+
 
 let toggles = {
   sma50: true,
@@ -13,6 +15,7 @@ let toggles = {
 
 export function setupUI() {
   initCharts();
+
   document.getElementById('refreshBtn').addEventListener('click', () => loadData());
   const reloadBtn = document.getElementById('llmReloadBtn');
   if (reloadBtn) reloadBtn.addEventListener('click', () => loadData(true));
@@ -26,6 +29,7 @@ export function setupUI() {
   if (zoomInYBtn) zoomInYBtn.addEventListener('click', () => zoomY(1));
   if (zoomOutYBtn) zoomOutYBtn.addEventListener('click', () => zoomY(-1));
   if (resetZoomBtn) resetZoomBtn.addEventListener('click', resetZoom);
+
   ['sma50','sma200','bb','rsi','macd','volume','backtest'].forEach(id => {
     document.getElementById(id + 'Toggle').addEventListener('change', e => {
       toggles[id] = e.target.checked;
@@ -37,23 +41,34 @@ export function setupUI() {
 
 async function loadData(reloadSummary = false) {
   const symbol = document.getElementById('symbolInput').value.trim().toUpperCase();
+  const timeframe = document.getElementById('timeframeSelect').value;
   if (!symbol) return;
+  
+  // Show loading state
+  const summaryEl = document.getElementById('summary');
+  summaryEl.innerHTML = '<div class="text-center"><i class="bi bi-hourglass-split"></i> Loading analysis...</div>';
+  
   try {
-    const data = await fetchStock(symbol);
+    const data = await fetchStock(symbol, timeframe);
     updateStockCharts(data, toggles);
 
     if (toggles.backtest) {
-      const bt = await fetchBacktest(symbol);
+      const bt = await fetchBacktest(symbol, timeframe);
       showBacktestStats(bt);
       updatePortfolioChart(bt);
     }
 
+
     const summary = await fetchSummary(symbol, reloadSummary);
     const summaryEl = document.getElementById('summary');
+
     summaryEl.innerHTML = `<div class="summary-text">${summary.replace(/\n/g, '<br>')}</div>`;
   } catch (err) {
     console.error(err);
-    alert(err.message);
+    summaryEl.innerHTML = `<div class="text-danger"><i class="bi bi-exclamation-triangle"></i> Error: ${err.message}</div>`;
+  } finally {
+    reloadBtn.disabled = false;
+    reloadBtn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>Reload';
   }
 }
 

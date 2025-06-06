@@ -10,10 +10,12 @@ if (fs.existsSync(cachePath)) {
   cache = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
 }
 
+
 export async function getSummary(symbol, indicators, opts = {}) {
   const today = new Date().toISOString().substring(0, 10);
   const force = opts.force === true;
   if (!force && cache[symbol] && cache[symbol].date === today) {
+
     return cache[symbol].summary;
   }
 
