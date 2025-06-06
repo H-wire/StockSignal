@@ -4,8 +4,10 @@ export async function fetchStock(symbol, timeframe = '6m') {
   return res.json();
 }
 
+
 export async function fetchSummary(symbol, timeframe = '6m') {
   const res = await fetch(`/api/summary/${symbol}?timeframe=${timeframe}`);
+
   if (!res.ok) throw new Error('Failed to fetch summary');
   return res.text();
 }

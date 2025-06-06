@@ -13,6 +13,7 @@ let toggles = {
 
 export function setupUI() {
   initCharts();
+
   document.getElementById('refreshBtn').addEventListener('click', loadData);
   document.getElementById('timeframeSelect').addEventListener('change', loadData);
   document.getElementById('reloadLlmBtn').addEventListener('click', reloadLlmSummary);
@@ -33,6 +34,7 @@ export function setupUI() {
     chart.resetZoom();
   });
   
+
   ['sma50','sma200','bb','rsi','macd','volume','backtest'].forEach(id => {
     document.getElementById(id + 'Toggle').addEventListener('change', e => {
       toggles[id] = e.target.checked;
@@ -42,7 +44,7 @@ export function setupUI() {
   loadData();
 }
 
-async function loadData() {
+async function loadData(reloadSummary = false) {
   const symbol = document.getElementById('symbolInput').value.trim().toUpperCase();
   const timeframe = document.getElementById('timeframeSelect').value;
   if (!symbol) return;
@@ -60,6 +62,7 @@ async function loadData() {
       showBacktestStats(bt);
       updatePortfolioChart(bt);
     }
+
 
     const summary = await fetchSummary(symbol, timeframe);
     summaryEl.innerHTML = `<div class="summary-text">${summary.replace(/\n/g, '<br>')}</div>`;
@@ -84,6 +87,7 @@ async function reloadLlmSummary() {
   
   try {
     const summary = await reloadSummary(symbol, timeframe);
+
     summaryEl.innerHTML = `<div class="summary-text">${summary.replace(/\n/g, '<br>')}</div>`;
   } catch (err) {
     console.error(err);
