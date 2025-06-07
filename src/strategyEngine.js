@@ -5,8 +5,23 @@ export function applyStrategy(data) {
     const row = data[i];
     const prev = data[i - 1];
 
-    row.baseSignal = row.sma50 && row.sma200 && row.rsi14 !== null &&
-      row.sma50 > row.sma200 && row.rsi14 < CONFIG.rsiBuyThreshold;
+    const crossUp =
+      prev.sma50 !== null &&
+      prev.sma200 !== null &&
+      row.sma50 !== null &&
+      row.sma200 !== null &&
+      prev.sma50 <= prev.sma200 &&
+      row.sma50 > row.sma200;
+
+    row.crossSignal =
+      crossUp &&
+      row.rsi14 !== null &&
+      row.rsi14 >= 30 &&
+      row.rsi14 <= 45;
+
+    row.rsiOversold = row.rsi14 !== null && row.rsi14 < 30;
+
+    row.baseSignal = row.crossSignal || row.rsiOversold;
 
     row.macdSignalBuy = false;
     if (CONFIG.strategies.macd && prev.macd !== null && prev.macdSignal !== null && row.macd !== null && row.macdSignal !== null) {
@@ -27,6 +42,13 @@ export function applyStrategy(data) {
     if (CONFIG.strategies.priceRate && row.priceRate30 !== null) {
       row.priceRateSignal = row.priceRate30 > 5; // hardcoded 5% threshold
     }
+
+    row.entryZone =
+      row.sma50 !== null &&
+      row.sma200 !== null &&
+      row.sma50 > row.sma200 &&
+      row.rsi14 !== null &&
+      row.rsi14 < 45;
 
     row.buySignal = row.baseSignal || row.macdSignalBuy || row.bollingerBreakout || row.volumeSpike || row.priceRateSignal;
   }
