@@ -43,7 +43,8 @@
                 <label for="symbolInput" class="form-label fw-semibold">Stock Symbol</label>
                 <div class="input-group">
                   <span class="input-group-text"><i class="bi bi-search"></i></span>
-                  <input type="text" id="symbolInput" class="form-control" placeholder="Enter symbol (e.g. HM-B.ST)" value="HM-B.ST">
+                  <input type="text" id="symbolInput" class="form-control" list="screenerList" placeholder="Enter symbol (e.g. HM-B.ST)" value="HM-B.ST">
+                  <datalist id="screenerList"></datalist>
                 </div>
               </div>
               <div class="col-4">
@@ -234,6 +235,18 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Portfolio Allocation -->
+        <div class="card shadow-sm mt-4">
+          <div class="card-header">
+            <h6 class="card-title mb-0">
+              <i class="bi bi-pie-chart me-2"></i>Portfolio Allocation
+            </h6>
+          </div>
+          <div class="card-body">
+            <div id="allocationDisplay"></div>
           </div>
         </div>
       </div>
