@@ -6,6 +6,8 @@ import { addIndicators } from './indicators.js';
 import { applyStrategy } from './strategyEngine.js';
 import { backtest } from './backtest.js';
 import { getSummary, clearSummaryCache } from './llm.js';
+import { screenSymbols } from './screener.js';
+import * as portfolio from './portfolio.js';
 import { init as initLogger, info, error } from './logger.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -13,6 +15,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+app.use(express.json());
 
 // Serve static frontend files
 app.use(express.static(path.resolve(__dirname, '..')));
@@ -104,6 +107,33 @@ app.post('/api/summary/:symbol/reload', async (req, res) => {
   } catch (err) {
     error(err);
     res.status(500).send('Failed to reload summary');
+  }
+});
+
+app.get('/api/screener', async (req, res) => {
+  try {
+    const symbols = await screenSymbols();
+    res.json({ symbols });
+  } catch (err) {
+    error(err);
+    res.status(500).json({ error: 'Failed to run screener' });
+  }
+});
+
+app.get('/api/portfolio', async (req, res) => {
+  try {
+    const positions = portfolio.getPositions();
+    const prices = {};
+    for (const pos of positions) {
+      await fetchAndCache(pos.symbol);
+      const data = getHistoricalData(pos.symbol);
+      if (data.length) prices[pos.symbol] = data[data.length - 1].close;
+    }
+    const allocations = portfolio.evaluateAllocations(prices);
+    res.json({ positions, allocations });
+  } catch (err) {
+    error(err);
+    res.status(500).json({ error: 'Failed to get portfolio' });
   }
 });
 

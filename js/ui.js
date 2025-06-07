@@ -1,5 +1,5 @@
 
-import { fetchStock, fetchSummary, fetchBacktest } from './api.js';
+import { fetchStock, fetchSummary, fetchBacktest, fetchScreener, fetchPortfolio } from './api.js';
 import { initCharts, updateStockCharts, updatePortfolioChart, zoomX, zoomY, resetZoom } from './chart.js';
 
 
@@ -37,6 +37,8 @@ export function setupUI() {
     });
   });
   loadData();
+  loadScreener();
+  loadPortfolio();
 }
 
 async function loadData(reloadSummary = false) {
@@ -105,4 +107,37 @@ function showBacktestStats(bt) {
       </div>
     </div>
   `;
+}
+
+async function loadScreener() {
+  try {
+    const data = await fetchScreener();
+    const list = document.getElementById('screenerList');
+    if (list) {
+      list.innerHTML = data.symbols.map(s => `<option value="${s}">`).join('');
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function loadPortfolio() {
+  try {
+    const data = await fetchPortfolio();
+    const el = document.getElementById('allocationDisplay');
+    if (!el) return;
+    const core = data.allocations.core.toFixed(0);
+    const spec = data.allocations.speculative.toFixed(0);
+    el.innerHTML = `
+      <div class="d-flex justify-content-between mb-1">
+        <small>Core ${core}%</small>
+        <small>Spec ${spec}%</small>
+      </div>
+      <div class="progress" style="height:8px;">
+        <div class="progress-bar bg-success" style="width:${core}%"></div>
+        <div class="progress-bar bg-warning" style="width:${spec}%"></div>
+      </div>`;
+  } catch (err) {
+    console.error(err);
+  }
 }
