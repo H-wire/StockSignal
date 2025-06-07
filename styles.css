@@ -114,6 +114,17 @@ canvas {
   border-radius: 8px;
 }
 
+/* Limit chart heights to keep them readable */
+#priceChart,
+#portfolioChart {
+  max-height: 350px;
+}
+
+#rsiChart,
+#macdChart {
+  max-height: 200px;
+}
+
 /* Loading states */
 .loading {
   position: relative;
