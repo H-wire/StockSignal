@@ -1,8 +1,50 @@
 let priceChart, rsiChart, macdChart, portfolioChart;
+let entryHighlightData = null;
+
+const entryHighlightPlugin = {
+  id: 'entryHighlight',
+  afterDatasetsDraw(chart) {
+    if (!entryHighlightData || chart !== priceChart) return;
+    const { ctx, scales } = chart;
+    const { x, y } = scales;
+    const yTop = y.top;
+    const height = y.bottom - y.top;
+    ctx.save();
+    for (let i = 0; i < entryHighlightData.dates.length - 1; i++) {
+      const sma50 = entryHighlightData.sma50[i];
+      const sma200 = entryHighlightData.sma200[i];
+      const rsi = entryHighlightData.rsi[i];
+      if (sma50 == null || sma200 == null || rsi == null) continue;
+      if (sma50 > sma200 && rsi < 45) {
+        const x0 = x.getPixelForValue(entryHighlightData.dates[i]);
+        const x1 = x.getPixelForValue(entryHighlightData.dates[i + 1]);
+        ctx.fillStyle = rsi < 30 ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.1)';
+        ctx.fillRect(x0, yTop, x1 - x0, height);
+
+        if (entryHighlightData.insider && entryHighlightData.insider[i]) {
+          ctx.fillStyle = '#0ea5e9';
+          ctx.beginPath();
+          ctx.arc((x0 + x1) / 2, yTop + 10, 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        if (entryHighlightData.earnings && entryHighlightData.earnings[i]) {
+          ctx.fillStyle = '#fbbf24';
+          ctx.beginPath();
+          ctx.rect((x0 + x1) / 2 - 3, yTop + 18, 6, 6);
+          ctx.fill();
+        }
+      }
+    }
+    ctx.restore();
+  }
+};
 
 // Register zoom plugin if available
 if (typeof Chart !== 'undefined' && typeof ChartZoom !== 'undefined') {
   Chart.register(ChartZoom);
+}
+if (typeof Chart !== 'undefined') {
+  Chart.register(entryHighlightPlugin);
 }
 
 export function initCharts() {
@@ -125,11 +167,17 @@ export function initCharts() {
   });
 }
 
+export function highlightEntryZones(data) {
+  entryHighlightData = data;
+  if (priceChart) priceChart.update();
+}
+
 export function updateStockCharts(data, toggles) {
   const labels = data.dates;
   priceChart.data.labels = labels;
   rsiChart.data.labels = labels;
   macdChart.data.labels = labels;
+  highlightEntryZones(data);
 
   priceChart.data.datasets = [
     {
